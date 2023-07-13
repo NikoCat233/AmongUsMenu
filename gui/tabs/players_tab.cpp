@@ -42,12 +42,19 @@ namespace PlayersTab {
 					{
 						std::string roleName = GetRoleName(playerData->fields.Role);
 						playerName = playerName + " (" + roleName + ")";
-						nameColor = AmongUsColorToImVec4(GetRoleColor(playerData->fields.Role));
+						if (PlayerSelection(playerData).is_LocalPlayer() || std::count(State.aumUsers.begin(), State.aumUsers.end(), playerData->fields.PlayerId) || std::count(State.modUsers.begin(), State.modUsers.end(), playerData->fields.PlayerId)) {
+							nameColor = AmongUsColorToImVec4(Palette__TypeInfo->static_fields->Orange);
+						}
+						else {
+							nameColor = AmongUsColorToImVec4(GetRoleColor(playerData->fields.Role));
+						}
 					}
-					else if(PlayerIsImpostor(localData) && PlayerIsImpostor(playerData))
+					else if (PlayerIsImpostor(localData) && PlayerIsImpostor(playerData))
 						nameColor = AmongUsColorToImVec4(Palette__TypeInfo->static_fields->ImpostorRed);
 					else if (PlayerSelection(playerData).is_LocalPlayer() || std::count(State.aumUsers.begin(), State.aumUsers.end(), playerData->fields.PlayerId))
 						nameColor = AmongUsColorToImVec4(Palette__TypeInfo->static_fields->Orange);
+					else if (std::count(State.modUsers.begin(), State.modUsers.end(), playerData->fields.PlayerId))
+						nameColor = AmongUsColorToImVec4(Palette__TypeInfo->static_fields->Brown);
 
 					if (playerData->fields.IsDead)
 						nameColor = AmongUsColorToImVec4(Palette__TypeInfo->static_fields->DisabledGrey);
@@ -61,6 +68,9 @@ namespace PlayersTab {
 				{
 					ImGui::Text("Is using AUM: %s",
 						selectedPlayer.is_LocalPlayer() || std::count(State.aumUsers.begin(), State.aumUsers.end(), selectedPlayer.get_PlayerData()->fields.PlayerId)
+						? "Yes" : "No");
+					ImGui::Text("Is using TOH: %s",
+						std::count(State.modUsers.begin(), State.modUsers.end(), selectedPlayer.get_PlayerData()->fields.PlayerId)
 						? "Yes" : "No");
 				}
 
@@ -80,6 +90,17 @@ namespace PlayersTab {
 						State.rpcQueue.push(new RpcReportPlayer(PlayerSelection()));
 					}
 				}
+
+				if (IsInGame())
+				{
+					if (ImGui::Button("Hack Kill"))
+					{
+						previousPlayerPosition = GetTrueAdjustedPosition(*Game::pLocalPlayer);
+						State.rpcQueue.push(new CmdCheckMurder(State.selectedPlayer));
+						framesPassed = 20;
+					}
+				}
+
 				if (State.activeImpersonation)
 				{
 					if (ImGui::Button("Reset Impersonation"))
@@ -183,7 +204,7 @@ namespace PlayersTab {
 						&& !GetPlayerData(*Game::pLocalPlayer)->fields.IsDead && ((*Game::pLocalPlayer)->fields.killTimer <= 0.0f)
 						&& !selectedPlayer.get_PlayerControl()->fields.protectedByGuardian)
 					{
-						if (ImGui::Button("Kill Player"))
+						if (ImGui::Button("Legit Kill"))
 						{
 							previousPlayerPosition = GetTrueAdjustedPosition(*Game::pLocalPlayer);
 							State.rpcQueue.push(new CmdCheckMurder(State.selectedPlayer));

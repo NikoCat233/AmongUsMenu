@@ -145,6 +145,10 @@ void dAmongUsClient_OnPlayerLeft(AmongUsClient* __this, ClientData* data, Discon
         if (it != State.aumUsers.end())
             State.aumUsers.erase(it);
 
+        auto its = std::find(State.modUsers.begin(), State.modUsers.end(), data->fields.Character->fields.PlayerId);
+        if (it != State.modUsers.end())
+            State.modUsers.erase(it);
+
         if (auto evtPlayer = GetEventPlayer(playerInfo); evtPlayer) {
             synchronized(Replay::replayEventMutex) {
         	    State.liveReplayEvents.emplace_back(std::make_unique<DisconnectEvent>(evtPlayer.value()));
@@ -218,6 +222,7 @@ static void onGameEnd() {
     LOG_DEBUG("Reset All");
     Replay::Reset();
     State.aumUsers.clear();
+    State.modUsers.clear();
     State.chatMessages.clear();
     std::fill(State.assignedRoles.begin(), State.assignedRoles.end(), RoleType::Random); //Clear Pre assigned roles to avoid bugs.
     State.MatchEnd = std::chrono::system_clock::now();

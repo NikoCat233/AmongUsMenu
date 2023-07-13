@@ -122,6 +122,7 @@ public:
     std::map<Game::Voter, Game::VotedFor> voteMonitor;
 
     std::vector<Game::PlayerId> aumUsers;
+    std::vector<Game::PlayerId> modUsers;
     int32_t rpcCooldown = 15;
     int32_t playerKilledId = 0;
 

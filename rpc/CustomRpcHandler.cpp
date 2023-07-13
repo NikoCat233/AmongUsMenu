@@ -7,7 +7,7 @@
 void HandleRpc(uint8_t callId, MessageReader* reader) {
 	switch (callId) {
 		
-	case (uint8_t)42069:
+	case 42069:
 	{
 		uint8_t playerid = MessageReader_ReadByte(reader, NULL);
 		if (!std::count(State.aumUsers.begin(), State.aumUsers.end(), playerid)) {
@@ -26,5 +26,13 @@ void HandleRpc(uint8_t callId, MessageReader* reader) {
 		State.newChatMessage = true;
 	}
 	break;
+	case 60:
+	{
+		uint8_t playerid = MessageReader_ReadByte(reader, NULL);
+		if (!std::count(State.modUsers.begin(), State.modUsers.end(), playerid)) {
+			State.modUsers.push_back(playerid);
+			STREAM_DEBUG("RPC Received for TOH User from " << ToString((Game::PlayerId)playerid));
+		}
+	}
 	}
 }
