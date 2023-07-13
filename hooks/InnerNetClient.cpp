@@ -146,8 +146,8 @@ void dAmongUsClient_OnPlayerLeft(AmongUsClient* __this, ClientData* data, Discon
             State.aumUsers.erase(it);
 
         auto its = std::find(State.modUsers.begin(), State.modUsers.end(), data->fields.Character->fields.PlayerId);
-        if (it != State.modUsers.end())
-            State.modUsers.erase(it);
+        if (its != State.modUsers.end())
+            State.modUsers.erase(its);
 
         if (auto evtPlayer = GetEventPlayer(playerInfo); evtPlayer) {
             synchronized(Replay::replayEventMutex) {
