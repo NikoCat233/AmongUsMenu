@@ -96,7 +96,7 @@ namespace PlayersTab {
 					if (ImGui::Button("Hack Kill"))
 					{
 						previousPlayerPosition = GetTrueAdjustedPosition(*Game::pLocalPlayer);
-						State.rpcQueue.push(new CmdCheckMurder(State.selectedPlayer));
+						State.rpcQueue.push(new RpcMurderPlayer(State.selectedPlayer));
 						framesPassed = 20;
 					}
 				}
