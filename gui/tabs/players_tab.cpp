@@ -69,9 +69,9 @@ namespace PlayersTab {
 					ImGui::Text("Is using AUM: %s",
 						selectedPlayer.is_LocalPlayer() || std::count(State.aumUsers.begin(), State.aumUsers.end(), selectedPlayer.get_PlayerData()->fields.PlayerId)
 						? "Yes" : "No");
-					ImGui::Text("Is using TOH: %s",
-						std::count(State.modUsers.begin(), State.modUsers.end(), selectedPlayer.get_PlayerData()->fields.PlayerId)
-						? "Yes" : "No");
+					//ImGui::Text("Is using TOH: %s",
+					//	std::count(State.modUsers.begin(), State.modUsers.end(), selectedPlayer.get_PlayerData()->fields.PlayerId)
+					//	? "Yes" : "No");
 				}
 
 
