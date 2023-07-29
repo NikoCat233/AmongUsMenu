@@ -60,6 +60,9 @@ namespace SabotageTab {
                     }
                 }
 
+                if (ImGui::Button("Mannual disable lights"))
+                    State.rpcQueue.push(new RpcRepairSystem(SystemTypes__Enum::Electrical, -1));
+
                 ImGui::EndTabItem();
             }
         }

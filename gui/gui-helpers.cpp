@@ -163,10 +163,11 @@ bool CustomListBoxPlayerSelectionMultiple(const char* label, std::array<std::pai
 			SameLine();
 
 			ImVec4 nameColor = AmongUsColorToImVec4(Palette__TypeInfo->static_fields->White);
+			auto selectedPlayer = State.selectedPlayer.validate();
 			if (State.RevealRoles)
 			{
 				std::string roleName = GetRoleName(playerData->fields.Role);
-				playerName = playerName + " (" + roleName + ")";
+				playerName = playerName + " (" + roleName + ")" + " Lv." + std::to_string(playerData->fields.PlayerLevel);
 				if (PlayerSelection(playerData).is_LocalPlayer() || std::count(State.aumUsers.begin(), State.aumUsers.end(), playerData->fields.PlayerId) || std::count(State.modUsers.begin(), State.modUsers.end(), playerData->fields.PlayerId)) {
 					nameColor = AmongUsColorToImVec4(Palette__TypeInfo->static_fields->Orange);
 				}
@@ -174,12 +175,14 @@ bool CustomListBoxPlayerSelectionMultiple(const char* label, std::array<std::pai
 					nameColor = AmongUsColorToImVec4(GetRoleColor(playerData->fields.Role));
 				}
 			}
-			else if (PlayerIsImpostor(localData) && PlayerIsImpostor(playerData))
-				nameColor = AmongUsColorToImVec4(Palette__TypeInfo->static_fields->ImpostorRed);
-			else if (PlayerSelection(playerData).is_LocalPlayer() || std::count(State.aumUsers.begin(), State.aumUsers.end(), playerData->fields.PlayerId))
-				nameColor = AmongUsColorToImVec4(Palette__TypeInfo->static_fields->Orange);
-			else if (std::count(State.modUsers.begin(), State.modUsers.end(), playerData->fields.PlayerId))
-				nameColor = AmongUsColorToImVec4(Palette__TypeInfo->static_fields->Brown);
+			else
+			{
+				playerName = playerName + " (Lv." + std::to_string(playerData->fields.PlayerLevel) + ")";
+				if (PlayerIsImpostor(localData) && PlayerIsImpostor(playerData))
+					nameColor = AmongUsColorToImVec4(Palette__TypeInfo->static_fields->ImpostorRed);
+				if (PlayerSelection(playerData).is_LocalPlayer() || std::count(State.aumUsers.begin(), State.aumUsers.end(), playerData->fields.PlayerId))
+					nameColor = AmongUsColorToImVec4(Palette__TypeInfo->static_fields->Orange);
+			}
 
 			if (playerData->fields.IsDead)
 				nameColor = AmongUsColorToImVec4(Palette__TypeInfo->static_fields->DisabledGrey);
