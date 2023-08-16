@@ -41,7 +41,7 @@ namespace PlayersTab {
 					if (State.RevealRoles)
 					{
 						std::string roleName = GetRoleName(playerData->fields.Role);
-						playerName = playerName + " (" + roleName + ")" +" Lv." + std::to_string(playerData->fields.PlayerLevel);
+						playerName = playerName + " (" + roleName + ")" + " Lv." + std::to_string(playerData->fields.PlayerLevel);
 						if (PlayerSelection(playerData).is_LocalPlayer() || std::count(State.aumUsers.begin(), State.aumUsers.end(), playerData->fields.PlayerId) || std::count(State.modUsers.begin(), State.modUsers.end(), playerData->fields.PlayerId)) {
 							nameColor = AmongUsColorToImVec4(Palette__TypeInfo->static_fields->Orange);
 						}
@@ -77,7 +77,7 @@ namespace PlayersTab {
 
 
 				if (IsInMultiplayerGame() && IsInGame()) {
-					float taskPercentage = (float) (*Game::pGameData)->fields.CompletedTasks / (float) (*Game::pGameData)->fields.TotalTasks;
+					float taskPercentage = (float)(*Game::pGameData)->fields.CompletedTasks / (float)(*Game::pGameData)->fields.TotalTasks;
 					ImGui::TextColored(ImVec4(1.0f - taskPercentage, 1.0f, 1.0f - taskPercentage, 1.0f), "%.1f%% Total Tasks Completed", taskPercentage * 100);
 				}
 
@@ -92,9 +92,29 @@ namespace PlayersTab {
 					}
 				}
 
-				if (IsInGame())
+				if (ImGui::Button("Fake send AUM"))
 				{
-					if (ImGui::Button("Hack Kill"))
+					MessageWriter* rpcMessage = InnerNetClient_StartRpc((InnerNetClient*)(*Game::pAmongUsClient), selectedPlayer.get_PlayerControl()->fields._.NetId, (uint8_t)42069, (SendOption__Enum)0, NULL);
+					MessageWriter_WriteByte(rpcMessage, selectedPlayer.get_PlayerControl()->fields.PlayerId, NULL);
+					MessageWriter_EndMessage(rpcMessage, NULL);
+				}
+
+				if (IsInGame && selectedPlayer.has_value()) {
+					if (ImGui::Button("Fake report body"))
+					{
+						MessageWriter* rpcMessage = InnerNetClient_StartRpc((InnerNetClient*)(*Game::pAmongUsClient), selectedPlayer.get_PlayerControl()->fields._.NetId, (uint8_t)11, (SendOption__Enum)0, NULL);
+						MessageWriter_WriteByte(rpcMessage, selectedPlayer.get_PlayerControl()->fields.PlayerId, NULL);
+						MessageWriter_EndMessage(rpcMessage, NULL);
+					}
+
+					if (ImGui::Button("Fake Hack kill"))
+					{
+						MessageWriter* rpcMessage = InnerNetClient_StartRpc((InnerNetClient*)(*Game::pAmongUsClient), selectedPlayer.get_PlayerControl()->fields._.NetId, (uint8_t)12, (SendOption__Enum)0, NULL);
+						MessageWriter_WriteUInt32(rpcMessage, selectedPlayer.get_PlayerControl()->fields._.NetId, NULL);
+						MessageWriter_EndMessage(rpcMessage, NULL);
+					}
+
+					if (ImGui::Button("Hack kill"))
 					{
 						previousPlayerPosition = GetTrueAdjustedPosition(*Game::pLocalPlayer);
 						State.rpcQueue.push(new RpcMurderPlayer(State.selectedPlayer));
@@ -102,11 +122,13 @@ namespace PlayersTab {
 					}
 				}
 
+
+
 				if (State.activeImpersonation)
 				{
 					if (ImGui::Button("Reset Impersonation"))
 					{
-						std::queue<RPCInterface*> *queue = nullptr;
+						std::queue<RPCInterface*>* queue = nullptr;
 
 						if (IsInGame())
 							queue = &State.rpcQueue;
@@ -140,7 +162,8 @@ namespace PlayersTab {
 							if (ImGui::Button("Stop Spectating")) {
 								State.playerToFollow = PlayerSelection();
 							}
-						} else {
+						}
+						else {
 							if (ImGui::Button("Spectate")) {
 								State.FreeCam = false;
 								State.playerToFollow = State.selectedPlayer;
@@ -156,7 +179,7 @@ namespace PlayersTab {
 								State.lobbyRpcQueue.push(new RpcSetName(State.originalName));
 						}
 					}
-					else if(!selectedPlayer.is_LocalPlayer()) {
+					else if (!selectedPlayer.is_LocalPlayer()) {
 						if ((IsInMultiplayerGame() || IsInLobby()) && ImGui::Button("Steal Name")) {
 							ImpersonateName(State.selectedPlayer);
 						}
@@ -222,7 +245,7 @@ namespace PlayersTab {
 
 					if (!selectedPlayer.is_LocalPlayer()) {
 						if (ImGui::Button("Teleport To")) {
-							if(IsInGame())
+							if (IsInGame())
 								State.rpcQueue.push(new RpcSnapTo(GetTrueAdjustedPosition(selectedPlayer.get_PlayerControl())));
 							else if (IsInLobby())
 								State.lobbyRpcQueue.push(new RpcSnapTo(GetTrueAdjustedPosition(selectedPlayer.get_PlayerControl())));
